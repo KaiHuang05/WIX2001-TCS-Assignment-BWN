@@ -74,6 +74,7 @@ const Capture = () => {
 
     // Store image and navigate to processing
     sessionStorage.setItem("capturedImage", imageData);
+    sessionStorage.setItem("mementoType", "photo");
     navigate("/processing");
   };
 
