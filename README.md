@@ -1,73 +1,233 @@
-# Welcome to your Lovable project
+# Smart Memento Booth 📸
 
-## Project info
+A modern photo booth application with a React frontend and FastAPI backend.
 
-**URL**: https://lovable.dev/projects/a7452150-e698-4ac9-ad34-a16c6f0549f4
+## 📁 Project Structure
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/a7452150-e698-4ac9-ad34-a16c6f0549f4) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+smart-memento-booth/
+├── frontend/              # React + TypeScript + Vite frontend
+│   ├── src/
+│   │   ├── components/   # React components (shadcn/ui)
+│   │   ├── pages/        # Page components
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── lib/          # Utility functions
+│   │   └── assets/       # Static assets
+│   ├── public/           # Public assets
+│   ├── package.json      # Frontend dependencies
+│   ├── vite.config.ts    # Vite configuration
+│   └── README.md         # Frontend documentation
+│
+└── backend/              # FastAPI Python backend
+    ├── app/
+    │   ├── api/
+    │   │   └── routes/   # API endpoints
+    │   ├── core/         # Configuration
+    │   ├── models/       # Database models
+    │   ├── schemas/      # Pydantic schemas
+    │   ├── services/     # Business logic
+    │   ├── dependencies/ # FastAPI dependencies
+    │   └── main.py       # Application entry point
+    ├── requirements.txt  # Python dependencies
+    ├── .env.example      # Environment variables template
+    └── README.md         # Backend documentation
 ```
 
-**Edit a file directly in GitHub**
+## 🚀 Quick Start
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Prerequisites
 
-**Use GitHub Codespaces**
+- **Frontend**: Node.js 18+ or Bun
+- **Backend**: Python 3.9+
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 1️⃣ Backend Setup
 
-## What technologies are used for this project?
+```bash
+# Navigate to backend directory
+cd backend
 
-This project is built with:
+# Create virtual environment
+python -m venv venv
 
-- Vite
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+
+# Run the backend
+fastapi dev app/main.py
+```
+
+Backend will be available at:
+- **API**: http://localhost:8000
+- **Swagger Docs**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+### 2️⃣ Frontend Setup
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies (using npm)
+npm install
+# OR using bun
+bun install
+
+# Run development server
+npm run dev
+# OR
+bun run dev
+```
+
+Frontend will be available at: **http://localhost:8080**
+
+## 🎯 Features
+
+### Frontend
+- ✨ Modern React with TypeScript
+- 🎨 shadcn/ui component library
+- 🎭 Tailwind CSS for styling
+- ⚡ Vite for fast development
+- 📱 Responsive design
+- 🎥 Audio/Video capture capabilities
+- 📸 Photo processing features
+
+### Backend
+- 🚀 FastAPI framework
+- 📊 Automatic API documentation
+- ✅ Pydantic data validation
+- 🔌 CORS enabled for frontend integration
+- 🏗️ Modular architecture
+- 📝 Type hints throughout
+- 🧪 Ready for testing
+
+## 🛠️ Development
+
+### Frontend Development
+
+```bash
+cd frontend
+npm run dev        # Start dev server
+npm run build      # Build for production
+npm run preview    # Preview production build
+npm run lint       # Run ESLint
+```
+
+### Backend Development
+
+```bash
+cd backend
+fastapi dev app/main.py  # Development mode with auto-reload
+fastapi run app/main.py  # Production mode
+pytest                   # Run tests
+```
+
+## 📡 API Integration
+
+The frontend is configured to communicate with the backend API. Update the CORS settings in `backend/.env` if needed:
+
+```env
+CORS_ORIGINS=http://localhost:8080,http://localhost:5173
+```
+
+## 🏗️ Architecture
+
+### Frontend (React)
+- **Component-based architecture**: Reusable UI components
+- **Page routing**: React Router for navigation
+- **State management**: React hooks
+- **UI library**: shadcn/ui components
+- **Styling**: Tailwind CSS utility-first
+
+### Backend (FastAPI)
+- **Layered architecture**:
+  - **API Layer**: Route handlers
+  - **Service Layer**: Business logic
+  - **Schema Layer**: Data validation
+  - **Model Layer**: Database models (future)
+- **Dependency Injection**: FastAPI's DI system
+- **Auto Documentation**: OpenAPI/Swagger
+
+## 📦 Technology Stack
+
+### Frontend
+- React 18
 - TypeScript
-- React
-- shadcn-ui
+- Vite
 - Tailwind CSS
+- shadcn/ui
+- React Router
+- React Hook Form
+- Zod validation
 
-## How can I deploy this project?
+### Backend
+- FastAPI
+- Uvicorn
+- Pydantic
+- Python 3.9+
 
-Simply open [Lovable](https://lovable.dev/projects/a7452150-e698-4ac9-ad34-a16c6f0549f4) and click on Share -> Publish.
+## 🔐 Environment Variables
 
-## Can I connect a custom domain to my Lovable project?
+### Backend (.env)
+```env
+APP_NAME=Smart Memento Booth API
+DEBUG=True
+CORS_ORIGINS=http://localhost:8080
+HOST=0.0.0.0
+PORT=8000
+```
 
-Yes, you can!
+See `backend/.env.example` for all available options.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📝 Available Scripts
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Frontend
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run linter
+
+### Backend
+- `fastapi dev app/main.py` - Start development server
+- `fastapi run app/main.py` - Start production server
+- `pytest` - Run tests
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is part of the Smart Memento Booth application.
+
+## 🆘 Support
+
+For issues and questions:
+- Frontend: Check `frontend/README.md`
+- Backend: Check `backend/README.md`
+- API Docs: Visit http://localhost:8000/docs when backend is running
+
+## 🎯 Next Steps
+
+- [ ] Add database integration (PostgreSQL/SQLite)
+- [ ] Implement authentication
+- [ ] Add file upload handling
+- [ ] Integrate photo processing
+- [ ] Add real-time features
+- [ ] Deploy to production
+
+---
+
+Built with ❤️ using React and FastAPI

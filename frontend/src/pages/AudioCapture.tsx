@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Mic, Square, Play, RotateCcw, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,10 +16,24 @@ const AudioCapture = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string>("");
+  const [malayText, setMalayText] = useState<string>("");
+  const [showTextInput, setShowTextInput] = useState(false);
+
+  const requestMicrophonePermission = useCallback(async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Microphone Error",
+        description: "Could not access microphone. Please check permissions.",
+      });
+    }
+  }, [toast]);
 
   useEffect(() => {
     requestMicrophonePermission();
-  }, []);
+  }, [requestMicrophonePermission]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -29,18 +44,6 @@ const AudioCapture = () => {
     }
     return () => clearInterval(interval);
   }, [isRecording]);
-
-  const requestMicrophonePermission = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Microphone Error",
-        description: "Could not access microphone. Please check permissions.",
-      });
-    }
-  };
 
   const startRecording = async () => {
     try {
@@ -100,6 +103,20 @@ const AudioCapture = () => {
   };
 
   const confirmRecording = () => {
+    // Show text input instead of proceeding immediately
+    setShowTextInput(true);
+  };
+
+  const submitMementoData = () => {
+    if (!malayText.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Text Required",
+        description: "Please enter the text in Malay.",
+      });
+      return;
+    }
+
     if (audioUrl) {
       fetch(audioUrl)
         .then(res => res.blob())
@@ -108,6 +125,7 @@ const AudioCapture = () => {
           reader.onloadend = () => {
             const base64data = reader.result as string;
             sessionStorage.setItem("capturedAudio", base64data);
+            sessionStorage.setItem("malayText", malayText);
             sessionStorage.setItem("mementoType", "audio");
             navigate("/processing");
           };
@@ -180,7 +198,7 @@ const AudioCapture = () => {
                 </>
               )}
             </Button>
-          ) : (
+          ) : !showTextInput ? (
             <div className="space-y-3">
               <Button
                 variant="hero"
@@ -212,6 +230,44 @@ const AudioCapture = () => {
                 >
                   <Check className="w-5 h-5 mr-2" />
                   Use This Voice
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-left">
+                <label className="text-white text-lg font-semibold mb-2 block">
+                  Enter your text in Malay:
+                </label>
+                <Textarea
+                  value={malayText}
+                  onChange={(e) => setMalayText(e.target.value)}
+                  placeholder="Tulis teks anda dalam Bahasa Melayu..."
+                  className="min-h-[120px] bg-white/20 border-white/30 text-white placeholder:text-white/50 text-lg resize-none"
+                />
+                <p className="text-white/70 text-sm mt-2">
+                  This text will be spoken using your voice
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowTextInput(false)}
+                  className="flex-1 text-lg py-6 bg-white/10 border-white text-white hover:bg-white/20"
+                >
+                  Back
+                </Button>
+                
+                <Button
+                  variant="hero"
+                  size="lg"
+                  onClick={submitMementoData}
+                  className="flex-1 text-lg py-6"
+                >
+                  <Check className="w-5 h-5 mr-2" />
+                  Generate Voice
                 </Button>
               </div>
             </div>

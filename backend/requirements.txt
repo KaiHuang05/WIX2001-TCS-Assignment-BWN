@@ -1,0 +1,26 @@
+# Core FastAPI dependencies
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-multipart
+
+# Testing dependencies
+pytest
+pytest-asyncio
+httpx
+
+# PyTorch and audio processing
+torch
+torchaudio
+
+# Voice synthesis and processing
+edge-tts
+numpy
+librosa
+soundfile
+
+# REAL Voice Cloning (requires Python 3.11 or lower)
+# If you're using Python 3.13+, you need to switch to Python 3.11
+TTS>=0.22.0
+transformers==4.33.0  # Fixed version for compatibility with TTS

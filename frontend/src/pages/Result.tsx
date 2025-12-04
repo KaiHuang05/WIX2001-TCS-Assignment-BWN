@@ -27,7 +27,8 @@ const Result = () => {
         data = sessionStorage.getItem("capturedVideo") || "";
         break;
       case "audio":
-        data = sessionStorage.getItem("capturedAudio") || "";
+        // For audio memento, use the generated audio instead of the original
+        data = sessionStorage.getItem("generatedAudio") || sessionStorage.getItem("capturedAudio") || "";
         break;
     }
 
@@ -61,7 +62,7 @@ const Result = () => {
 
     const link = document.createElement("a");
     link.href = capturedData;
-    const extension = mementoType === "photo" ? "png" : mementoType === "video" ? "webm" : "webm";
+    const extension = mementoType === "photo" ? "png" : mementoType === "video" ? "webm" : mementoType === "audio" ? "wav" : "webm";
     link.download = `smart-memento-${Date.now()}.${extension}`;
     document.body.appendChild(link);
     link.click();
@@ -76,8 +77,8 @@ const Result = () => {
     try {
       const response = await fetch(capturedData);
       const blob = await response.blob();
-      const mimeType = mementoType === "photo" ? "image/png" : mementoType === "video" ? "video/webm" : "audio/webm";
-      const extension = mementoType === "photo" ? "png" : "webm";
+      const mimeType = mementoType === "photo" ? "image/png" : mementoType === "video" ? "video/webm" : mementoType === "audio" ? "audio/wav" : "audio/webm";
+      const extension = mementoType === "photo" ? "png" : mementoType === "audio" ? "wav" : "webm";
       const file = new File([blob], `memento.${extension}`, { type: mimeType });
 
       if (navigator.share && navigator.canShare({ files: [file] })) {
