@@ -1,107 +1,105 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 203 100% 20%;
+    --background: 45 30% 90%;
+    --foreground: 25 50% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 203 100% 20%;
+    --card-foreground: 25 50% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 203 100% 20%;
+    --popover-foreground: 25 50% 20%;
 
-    /* Deep blue primary color */
-    --primary: 203 100% 31%;
+    --primary: 35 70% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 203 100% 40%;
-    --primary-dark: 203 100% 25%;
 
-    /* Vibrant orange accent */
-    --accent: 39 100% 50%;
+    --secondary: 45 30% 85%;
+    --secondary-foreground: 25 50% 20%;
+
+    --muted: 45 20% 80%;
+    --muted-foreground: 25 30% 40%;
+
+    --accent: 35 80% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-light: 39 100% 60%;
-    --accent-dark: 39 100% 45%;
-
-    --secondary: 203 60% 95%;
-    --secondary-foreground: 203 100% 31%;
-
-    --muted: 203 30% 96%;
-    --muted-foreground: 203 20% 50%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 203 30% 90%;
-    --input: 203 30% 90%;
-    --ring: 203 100% 31%;
+    --border: 35 30% 80%;
+    --input: 35 30% 80%;
+    --ring: 35 70% 45%;
 
-    --radius: 1rem;
-    
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(203 100% 31%) 0%, hsl(203 100% 40%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(39 100% 50%) 0%, hsl(39 100% 60%) 100%);
-    --gradient-celebration: linear-gradient(135deg, hsl(203 100% 31%) 0%, hsl(39 100% 50%) 100%);
+    --radius: 0.75rem;
+
+    /* Custom heritage colors */
+    --heritage-gold: 43 80% 50%;
+    --heritage-brown: 25 60% 25%;
+    --heritage-maroon: 15 50% 30%;
+    --heritage-cream: 45 40% 92%;
+    --heritage-navy: 220 40% 20%;
+
+    /* Gradients */
+    --gradient-icon: linear-gradient(180deg, hsl(25 80% 55%) 0%, hsl(15 50% 35%) 100%);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 203 100% 8%;
-    --foreground: 0 0% 98%;
+    --background: 220 40% 15%;
+    --foreground: 45 30% 90%;
 
-    --card: 203 100% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 35% 20%;
+    --card-foreground: 45 30% 90%;
 
-    --popover: 203 100% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 35% 20%;
+    --popover-foreground: 45 30% 90%;
 
-    --primary: 203 100% 40%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 203 100% 50%;
-    --primary-dark: 203 100% 35%;
+    --primary: 35 70% 50%;
+    --primary-foreground: 220 40% 15%;
 
-    --accent: 39 100% 50%;
-    --accent-foreground: 0 0% 100%;
-    --accent-light: 39 100% 60%;
-    --accent-dark: 39 100% 45%;
+    --secondary: 220 30% 25%;
+    --secondary-foreground: 45 30% 90%;
 
-    --secondary: 203 60% 15%;
-    --secondary-foreground: 0 0% 98%;
+    --muted: 220 25% 25%;
+    --muted-foreground: 45 20% 70%;
 
-    --muted: 203 30% 20%;
-    --muted-foreground: 203 20% 65%;
+    --accent: 35 80% 55%;
+    --accent-foreground: 220 40% 15%;
 
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 203 30% 20%;
-    --input: 203 30% 20%;
-    --ring: 203 100% 40%;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(203 100% 35%) 0%, hsl(203 100% 45%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(39 100% 45%) 0%, hsl(39 100% 55%) 100%);
-    --gradient-celebration: linear-gradient(135deg, hsl(203 100% 35%) 0%, hsl(39 100% 45%) 100%);
+    --border: 220 25% 30%;
+    --input: 220 25% 30%;
+    --ring: 35 70% 50%;
+
+    --heritage-gold: 43 80% 55%;
+    --heritage-brown: 25 50% 40%;
+    --heritage-maroon: 15 40% 45%;
+    --heritage-cream: 45 20% 25%;
+    --heritage-navy: 220 40% 15%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -112,23 +110,69 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Poppins', sans-serif;
   }
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
+  /* --- NEW UTILITIES --- */
+  .font-display {
+    font-family: 'Playfair Display', serif;
   }
-  
-  .gradient-accent {
-    background: var(--gradient-accent);
+
+  .font-sans {
+    font-family: 'Inter', sans-serif;
   }
-  
-  .gradient-celebration {
-    background: var(--gradient-celebration);
+
+  .text-heritage-gold {
+    color: hsl(var(--heritage-gold));
   }
+
+  .border-heritage-gold {
+    border-color: hsl(var(--heritage-gold));
+  }
+
+  .text-heritage-brown {
+    color: hsl(var(--heritage-brown));
+  }
+
+  .bg-heritage-gold {
+    background-color: hsl(var(--heritage-gold));
+  }
+
+  .text-heritage-maroon {
+    color: hsl(var(--heritage-maroon));
+  }
+
+  .bg-heritage-cream {
+    background-color: hsl(var(--heritage-cream));
+  }
+
+  .bg-heritage-navy {
+    background-color: hsl(var(--heritage-navy));
+  }
+
+  .gradient-icon {
+    background: linear-gradient(180deg, hsl(25 80% 55%) 0%, hsl(15 50% 35%) 100%);
+  }
+
   
+
+  .batik-pattern {
+    /* Layer 1: The "Cream Wash" overlay (93% opacity) */
+    /* Layer 2: The actual image file from your public folder */
+    background-image: 
+      linear-gradient(
+        hsla(45, 40%, 92%, 0.93), 
+        hsla(45, 40%, 92%, 0.93)
+      ),
+      url('/batik-pattern.png'); 
+      
+    background-size: 1000px; /* Adjust this number to zoom the pattern in/out */
+    background-repeat: repeat;
+    background-position: center;
+  }
+
+  /* --- RESTORED OLD ANIMATIONS (Safety Net) --- */
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Welcome from "./pages/Welcome";
+import About from "./pages/About";
 import Capture from "./pages/Capture";
 import VideoCapture from "./pages/VideoCapture";
 import AudioCapture from "./pages/AudioCapture";
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Welcome />} />
+          <Route path="/about" element={<About />} />
           <Route path="/capture" element={<Capture />} />
           <Route path="/video-capture" element={<VideoCapture />} />
           <Route path="/audio-capture" element={<AudioCapture />} />

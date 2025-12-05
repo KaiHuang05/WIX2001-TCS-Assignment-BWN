@@ -2,12 +2,15 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+// Optional: Import Header if you want it on the loading screen, 
+// but usually loading screens are clean. I will keep it clean but themed.
 
 const Processing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [processingStatus, setProcessingStatus] = useState("Processing...");
 
+  // --- LOGIC SECTION (UNTOUCHED) ---
   const processAudioMemento = useCallback(async () => {
     try {
       const capturedAudio = sessionStorage.getItem("capturedAudio");
@@ -85,43 +88,47 @@ const Processing = () => {
       return () => clearTimeout(timer);
     }
   }, [navigate, processAudioMemento]);
+  // --------------------------------
 
   return (
-    <div className="min-h-screen gradient-celebration flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-white/10 animate-ping" style={{ animationDuration: "2s" }} />
-        <div className="absolute bottom-1/4 right-1/4 w-24 h-24 rounded-full bg-white/10 animate-ping" style={{ animationDuration: "2.5s", animationDelay: "0.5s" }} />
-        <div className="absolute top-1/2 right-1/3 w-40 h-40 rounded-full bg-white/10 animate-ping" style={{ animationDuration: "3s", animationDelay: "1s" }} />
-      </div>
+    // FIX 1: Applied Heritage Background
+    <div className="min-h-screen bg-heritage-cream relative overflow-hidden flex flex-col items-center justify-center p-6">
+      
+      {/* Background Pattern (Faded) */}
+      <div className="absolute inset-0 batik-pattern opacity-50 pointer-events-none" />
 
       {/* Content */}
-      <div className="z-10 text-center space-y-8 max-w-md">
+      <div className="z-10 text-center space-y-8 max-w-md w-full">
         <div className="relative">
           <div className="w-32 h-32 mx-auto mb-8 relative">
-            <div className="absolute inset-0 rounded-full bg-white/20 animate-pulse-slow" />
-            <div className="absolute inset-4 rounded-full bg-white/30 animate-pulse-slow" style={{ animationDelay: "0.5s" }} />
-            <div className="absolute inset-8 rounded-full bg-white/40 flex items-center justify-center">
-              <Sparkles className="w-12 h-12 text-white animate-sparkle" />
+            {/* FIX 2: Updated Pulse Colors to Gold/Cream */}
+            <div className="absolute inset-0 rounded-full bg-[#D69E2E]/20 animate-pulse-slow" />
+            <div className="absolute inset-4 rounded-full bg-[#D69E2E]/30 animate-pulse-slow" style={{ animationDelay: "0.5s" }} />
+            
+            {/* FIX 3: Center Circle is now Heritage Navy */}
+            <div className="absolute inset-8 rounded-full bg-[#1f2b3e] flex items-center justify-center shadow-xl">
+              <Sparkles className="w-12 h-12 text-[#D69E2E] animate-sparkle" />
             </div>
           </div>
         </div>
 
         <div className="space-y-4 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
+          {/* FIX 4: Typography Updated to Dark Blue */}
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-[#1f2b3e]">
             Our AI is working its magic...
           </h2>
-          <p className="text-lg md:text-xl text-white/90 font-medium">
+          <p className="text-lg md:text-xl text-[#1f2b3e]/80 font-medium font-sans">
             Your special memento is just moments away!
           </p>
-          <p className="text-base text-white/80">
+          <p className="text-base text-[#A65D37] font-semibold">
             {processingStatus}
           </p>
         </div>
 
         {/* Loading bar */}
-        <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
-          <div className="h-full bg-white rounded-full animate-[shimmer_2s_ease-in-out_infinite]" style={{ width: "70%" }} />
+        <div className="w-full bg-white/50 rounded-full h-3 overflow-hidden border border-[#D69E2E]/30">
+          {/* FIX 5: Progress Bar is now Gold */}
+          <div className="h-full bg-[#D69E2E] rounded-full animate-[shimmer_2s_ease-in-out_infinite]" style={{ width: "70%" }} />
         </div>
       </div>
     </div>

@@ -1,85 +1,78 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Camera, Video, Mic } from "lucide-react";
-import eventLogo from "@/assets/event-logo.png";
+import { Link } from "react-router-dom"; 
+// Removed { Camera, Film, Mic } import as we are using PNGs now
 
-const Welcome = () => {
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import MementoCard from "@/components/MementoCard";
+
+const Welcome = () => { 
+  const mementos = [
+    {
+      // CHANGED: Points to your PNG file in the public folder
+      iconSrc: "/camera.png", 
+      title: "Photo Memento",
+      description: "Create your heritage-style AI portrait with batik and songket elements",
+      path: "/capture" 
+    },
+    {
+      // CHANGED: Points to your PNG file
+      iconSrc: "/video.png",
+      title: "Video Memento",
+      description: "Star in an AI short inspired by Malaysian folklore and cultural narratives",
+      path: "/video-capture" 
+    },
+    {
+      // CHANGED: Points to your PNG file
+      iconSrc: "/audio.png",
+      title: "Audio Memento",
+      description: "Hear your AI-voiced heritage story narrated in Malaysian storytelling tradition",
+      path: "/audio-capture" 
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        <div className="absolute top-20 left-10 w-20 h-20 rounded-full bg-accent/10 animate-float" />
-        <div className="absolute bottom-32 right-10 w-32 h-32 rounded-full bg-primary/10 animate-float" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 right-20 w-16 h-16 rounded-full bg-accent/5 animate-float" style={{ animationDelay: "2s" }} />
-      </div>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
 
-      {/* Content */}
-      <div className="z-10 text-center space-y-8 max-w-2xl w-full">
-        {/* Logo */}
-        <div className="mb-4 animate-fade-in">
-          <img 
-            src={eventLogo} 
-            alt="Event Logo" 
-            className="w-24 h-24 mx-auto object-contain drop-shadow-xl"
-          />
+      <main className="flex-1 batik-pattern flex flex-col">
+        <div className="max-w-3xl mx-auto px-6 py-16 md:py-24 w-full">
+          {/* Hero Section */}
+          <div className="text-center mb-12 md:mb-16">
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[#5E4B35] mb-4 animate-fade-in">
+              Welcome, Creator!
+            </h1>
+            <p className="text-lg md:text-xl text-[#1f2b3e] animate-fade-in" style={{ animationDelay: "100ms" }}>
+              Choose your free AI-powered heritage memento
+            </p>
+          </div>
+
+          {/* Memento Cards */}
+          <div className="flex flex-col gap-5">
+            {mementos.map((memento, index) => (
+              <Link to={memento.path} key={memento.title} className="block group">
+                <MementoCard
+                  // CHANGED: Passing the iconSrc string instead of an icon component
+                  iconSrc={memento.iconSrc} 
+                  title={memento.title}
+                  description={memento.description}
+                  delay={200 + index * 100}
+                />
+              </Link>
+            ))}
+          </div>          
         </div>
-
-        {/* Headline */}
-        <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Welcome, Creator!
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-medium">
-            Choose your free AI-powered memento.<br />
-            A smart gift from us to you!
-          </p>
+        
+        {/* Ornament Block */}
+        <div className="flex justify-center pb-8 mt-auto">
+            <img 
+              src="/footer-ornament.png" 
+              alt="Heritage Ornament" 
+              className="h-5 w-auto opacity-80" 
+            />
         </div>
+      </main>
 
-        {/* Three Choice Buttons */}
-        <div className="pt-6 space-y-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-          <Link to="/capture" className="block">
-            <Button 
-              variant="accent" 
-              size="lg"
-              className="w-full text-left flex items-center gap-4 h-auto py-6 px-8 justify-start hover:scale-[1.02] transition-transform"
-            >
-              <Camera className="w-8 h-8 flex-shrink-0" />
-              <div className="text-left">
-                <div className="text-xl font-bold">🖼️ Photo Memento</div>
-                <div className="text-sm opacity-80 font-normal">Get an AI-themed photo</div>
-              </div>
-            </Button>
-          </Link>
-
-          <Link to="/video-capture" className="block">
-            <Button 
-              variant="accent" 
-              size="lg"
-              className="w-full text-left flex items-center gap-4 h-auto py-6 px-8 justify-start hover:scale-[1.02] transition-transform"
-            >
-              <Video className="w-8 h-8 flex-shrink-0" />
-              <div className="text-left">
-                <div className="text-xl font-bold">🎬 Video Memento</div>
-                <div className="text-sm opacity-80 font-normal">Star in a trendy AI reel</div>
-              </div>
-            </Button>
-          </Link>
-
-          <Link to="/audio-capture" className="block">
-            <Button 
-              variant="accent" 
-              size="lg"
-              className="w-full text-left flex items-center gap-4 h-auto py-6 px-8 justify-start hover:scale-[1.02] transition-transform"
-            >
-              <Mic className="w-8 h-8 flex-shrink-0" />
-              <div className="text-left">
-                <div className="text-xl font-bold">🎧 Audio Memento</div>
-                <div className="text-sm opacity-80 font-normal">Hear an AI quote in your voice</div>
-              </div>
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 };
