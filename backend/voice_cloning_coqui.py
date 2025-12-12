@@ -42,12 +42,26 @@ class VoiceCloningSystem:
         """
         try:
             from TTS.api import TTS
+            import torch
             
             logger.info(f"Loading TTS model: {model_name}")
             logger.info(f"Using device: {self.device}")
             
-            # Initialize TTS with the multilingual model that supports voice cloning
-            self.tts = TTS(model_name, progress_bar=True).to(self.device)
+            # Fix PyTorch 2.6+ compatibility issue with weights_only=True
+            # Temporarily set weights_only=False for TTS model loading
+            original_load = torch.load
+            def patched_load(*args, **kwargs):
+                kwargs.setdefault('weights_only', False)
+                return original_load(*args, **kwargs)
+            
+            torch.load = patched_load
+            
+            try:
+                # Initialize TTS with the multilingual model that supports voice cloning
+                self.tts = TTS(model_name, progress_bar=True).to(self.device)
+            finally:
+                # Restore original torch.load
+                torch.load = original_load
             self.model_loaded = True
             
             logger.info("TTS model loaded successfully!")
