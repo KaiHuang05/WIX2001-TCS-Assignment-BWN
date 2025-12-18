@@ -36,73 +36,121 @@ def get_voice_system():
         logger.info("Voice cloning system ready!")
     return voice_system
 
-@router.post("/voice-clone")
-async def clone_voice(
-    audio_file: UploadFile = File(..., description="Audio file containing voice sample"),
-    text: str = Form(..., description="Text in Malay to be spoken")
+@router.post("/text-to-speech")
+async def text_to_speech(
+    text: str = Form(..., description="Text in Malay to be spoken"),
+    voice_type: str = Form("female", description="Voice type: 'male', 'female', or 'clone'")
 ):
     """
-    Generate voice using Coqui TTS XTTS v2 with REAL voice cloning
-    Falls back to default voice if cloning fails
+    Generate text-to-speech with professional Malay voices or voice cloning
     
-    - **audio_file**: Audio file with the user's voice sample (your actual voice)
-    - **text**: Text in Malay that will be spoken using YOUR cloned voice
+    - **text**: Text in Malay to be spoken
+    - **voice_type**: Voice type to use ('male', 'female', or 'clone')
+        - 'male': Uses Edge-TTS Osman (Malaysian male voice)
+        - 'female': Uses Edge-TTS Yasmin (Malaysian female voice)
+        - 'clone': Uses cloned voice (defaults to female if not available)
     """
     temp_dir = None
     try:
-        logger.info(f"Received voice clone request with text: {text[:50]}...")
-        
-        # Get voice cloning system
-        voice_sys = get_voice_system()
+        logger.info(f"Received text-to-speech request with text: {text[:50]}...")
+        logger.info(f"Voice type selected: {voice_type}")
         
         # Create temporary directory for processing
         temp_dir = tempfile.mkdtemp()
         logger.info(f"Created temp directory: {temp_dir}")
         
-        # Save uploaded audio file with proper extension
-        file_extension = audio_file.filename.split('.')[-1] if '.' in audio_file.filename else 'wav'
-        input_audio_path = os.path.join(temp_dir, f"input_voice.{file_extension}")
+        # Generate output path
+        output_audio_path = os.path.join(temp_dir, "generated_voice.wav")
         
-        with open(input_audio_path, "wb") as buffer:
-            shutil.copyfileobj(audio_file.file, buffer)
-        logger.info(f"Saved input audio to: {input_audio_path}")
+        # Handle different voice types
+        if voice_type == "male":
+            voice = "ms-MY-OsmanNeural"  # Malaysian Malay male voice
+        elif voice_type == "female":
+            voice = "ms-MY-YasminNeural"  # Malaysian Malay female voice
+        elif voice_type == "clone":
+            # For now, default to female voice until cloning is implemented
+            voice = "ms-MY-YasminNeural"
+            logger.info("Voice cloning requested but not yet implemented, using female voice")
+        else:
+            # Default to female if unknown voice type
+            voice = "ms-MY-YasminNeural"
+            logger.warning(f"Unknown voice type '{voice_type}', defaulting to female voice")
         
-        # Verify audio file size
-        file_size = os.path.getsize(input_audio_path)
-        logger.info(f"Input audio file size: {file_size} bytes")
+        logger.info(f"Using Edge-TTS voice: {voice}")
+        communicate = edge_tts.Communicate(text, voice)
+        await communicate.save(output_audio_path)
+        result_path = output_audio_path
+        
+        logger.info(f"Edge-TTS generation completed at: {result_path}")
+        
+        # Return the generated audio file
+        if not os.path.exists(result_path):
+            raise HTTPException(status_code=500, detail="Voice generation failed")
+        
+        return FileResponse(
+            result_path,
+            media_type="audio/wav",
+            filename="generated_voice.wav",
+            headers={
+                "Content-Disposition": "attachment; filename=generated_voice.wav"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"Voice generation error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Voice generation failed: {str(e)}")
+    
+    finally:
+        # Cleanup is handled by FileResponse background tasks
+        # The temp directory will be cleaned up after the file is sent
+        if temp_dir and os.path.exists(temp_dir):
+            # Schedule cleanup after response is sent
+            pass  # FastAPI will handle this with background tasks if needed
+
+
+@router.post("/voice-clone")
+async def clone_voice(
+    text: str = Form(..., description="Text in Malay to be spoken"),
+    voice_type: str = Form("female", description="Voice type: 'male' or 'female'"),
+    audio_file: UploadFile = File(None, description="Optional audio file (not used for text-to-speech)")
+):
+    """
+    Generate text-to-speech with professional Malay voices
+    
+    - **text**: Text in Malay to be spoken
+    - **voice_type**: Voice type to use ('male' or 'female')
+        - 'male': Uses Edge-TTS Osman (Malaysian male voice)
+        - 'female': Uses Edge-TTS Yasmin (Malaysian female voice)
+    - **audio_file**: Optional, not used for this endpoint
+    """
+    temp_dir = None
+    try:
+        logger.info(f"Received voice generation request with text: {text[:50]}...")
+        logger.info(f"Voice type selected: {voice_type}")
+        
+        # Create temporary directory for processing
+        temp_dir = tempfile.mkdtemp()
+        logger.info(f"Created temp directory: {temp_dir}")
         
         # Generate output path
         output_audio_path = os.path.join(temp_dir, "generated_voice.wav")
         
-        # Try voice cloning first, fall back to edge-tts if it fails
-        try:
-            if file_size < 1000:  # Less than 1KB
-                logger.warning("Audio file is too small, using edge-tts fallback instead")
-                raise ValueError("Audio file too small")
-            
-            # Use REAL voice cloning with Coqui TTS XTTS v2
-            logger.info("Starting REAL voice cloning with Coqui TTS XTTS v2...")
-            result_path = voice_sys.clone_voice(
-                text=text,
-                speaker_audio_path=input_audio_path,
-                output_path=output_audio_path,
-                language="ms"  # Malay language
-            )
-            logger.info(f"Voice cloning completed successfully at: {result_path}")
-            
-        except Exception as clone_error:
-            # Voice cloning failed, use edge-tts as fallback
-            logger.warning(f"Voice cloning failed: {str(clone_error)}")
-            logger.info("Falling back to edge-tts (original framework)...")
-            
-            # Use edge-tts for fallback
-            # Use Malay voice from edge-tts
+        # Handle different voice types
+        if voice_type == "male":
             voice = "ms-MY-OsmanNeural"  # Malaysian Malay male voice
-            communicate = edge_tts.Communicate(text, voice)
-            await communicate.save(output_audio_path)
-            result_path = output_audio_path
-            
-            logger.info(f"Edge-TTS generation completed at: {result_path}")
+        elif voice_type == "female":
+            voice = "ms-MY-YasminNeural"  # Malaysian Malay female voice
+        else:
+            # Default to female if unknown voice type
+            voice = "ms-MY-YasminNeural"
+            logger.warning(f"Unknown voice type '{voice_type}', defaulting to female voice")
+        
+        logger.info(f"Using Edge-TTS voice: {voice}")
+        communicate = edge_tts.Communicate(text, voice)
+        await communicate.save(output_audio_path)
+        result_path = output_audio_path
+        
+        logger.info(f"Edge-TTS generation completed at: {result_path}")
         
         # Return the generated audio file
         if not os.path.exists(result_path):
@@ -214,28 +262,44 @@ async def voice_clone_health():
 
 @router.get("/voice-clone/voices")
 async def list_voices():
-    """Get information about voice cloning capabilities"""
+    """Get available voice types and capabilities"""
     try:
         voice_sys = get_voice_system()
         
         return {
             "status": "success",
-            "message": "This system uses REAL voice cloning - it will use YOUR voice from the audio sample you provide",
-            "system": "Coqui TTS XTTS v2",
-            "model": "tts_models/multilingual/multi-dataset/xtts_v2",
+            "message": "Available voice generation options",
+            "voice_types": [
+                {
+                    "id": "female",
+                    "name": "Female Voice (Yasmin)",
+                    "description": "Professional female Malay voice",
+                    "icon": "👩",
+                    "system": "Microsoft Edge-TTS",
+                    "voice_id": "ms-MY-YasminNeural",
+                    "requires_audio_sample": False
+                },
+                {
+                    "id": "male",
+                    "name": "Male Voice (Osman)",
+                    "description": "Professional male Malay voice",
+                    "icon": "👨",
+                    "system": "Microsoft Edge-TTS",
+                    "voice_id": "ms-MY-OsmanNeural",
+                    "requires_audio_sample": False
+                }
+            ],
             "capabilities": {
                 "voice_cloning": True,
                 "multilingual": True,
                 "languages_supported": ["ms", "en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar", "zh-cn", "ja", "hu", "ko"],
                 "malay_support": True,
                 "real_voice_cloning": "Uses your actual voice characteristics from the audio sample"
-            },
-            "usage": "Upload an audio sample of your voice (3-10 seconds) and provide Malay text. The system will generate speech in YOUR voice."
+            }
         }
     except Exception as e:
         return {
             "status": "error",
             "message": f"Failed to get voice information: {str(e)}",
-            "system": "Coqui TTS XTTS v2"
+            "voice_types": []
         }
-

@@ -156,6 +156,7 @@ const Processing = () => {
     try {
       const capturedAudio = sessionStorage.getItem("capturedAudio");
       const malayText = sessionStorage.getItem("malayText");
+      const voiceType = sessionStorage.getItem("voiceType") || "female"; // Get voice type, default to female
 
       if (!capturedAudio || !malayText) {
         throw new Error("Missing audio or text data");
@@ -171,8 +172,9 @@ const Processing = () => {
       const formData = new FormData();
       formData.append("audio_file", blob, "voice_sample.webm");
       formData.append("text", malayText);
+      formData.append("voice_type", voiceType); // Add voice type to the request
 
-      setProcessingStatus("Generating voice with Chatterbox...");
+      setProcessingStatus(`Generating voice with ${voiceType === 'male' ? 'Osman (Male)' : 'Yasmin (Female)'}...`);
 
       // Send to backend
       const response = await fetch(API_ENDPOINTS.voiceClone, {
