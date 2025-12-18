@@ -11,8 +11,8 @@ const Welcome = () => {
       // CHANGED: Points to your PNG file in the public folder
       iconSrc: "/camera.png", 
       title: "Photo Memento",
-      description: "Create your heritage-style AI portrait with batik and songket elements",
-      path: "/capture" 
+      description: "Create your heritage-inspired AI souvenirs infused with rich cultural details and timeless elegance",
+      path: "/photo-upload" 
     },
     {
       // CHANGED: Points to your PNG file

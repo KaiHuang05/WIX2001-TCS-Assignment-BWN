@@ -5,6 +5,10 @@ pydantic
 pydantic-settings
 python-multipart
 
+# HTTP client and image processing
+requests
+Pillow
+
 # Testing dependencies
 pytest
 pytest-asyncio

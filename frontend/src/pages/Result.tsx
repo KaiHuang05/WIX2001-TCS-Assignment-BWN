@@ -102,12 +102,12 @@ const Result = () => {
     switch (mementoType) {
       case "photo":
         return (
-          // FIX: Added Gold Border and Shadow
-          <div className="w-full aspect-[3/4] max-w-md rounded-2xl overflow-hidden shadow-2xl relative border-8 border-[#D69E2E] bg-white">
+          // Display image with preserved aspect ratio
+          <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl relative border-8 border-[#D69E2E] bg-white">
             <img
               src={capturedData}
               alt="Your AI-generated memento"
-              className="w-full h-full object-cover"
+              className="w-full h-auto object-contain"
             />
             {/* Vintage Overlay Effect */}
             <div className="absolute inset-0 pointer-events-none opacity-20 bg-sepia mix-blend-overlay"></div>

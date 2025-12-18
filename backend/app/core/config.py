@@ -21,8 +21,12 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://localhost:8000",
         "http://localhost:8080"
     ]
+    
+    # Stability AI
+    STABILITY_AI_API_KEY: str = ""
     
     # Database (optional, for future use)
     # DATABASE_URL: str | None = None

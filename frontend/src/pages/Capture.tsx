@@ -72,10 +72,10 @@ const Capture = () => {
       stream.getTracks().forEach(track => track.stop());
     }
 
-    // Store image and navigate to processing
+    // Store image and navigate to genre selection
     sessionStorage.setItem("capturedImage", imageData);
     sessionStorage.setItem("mementoType", "photo");
-    navigate("/processing");
+    navigate("/genre-selection");
   };
 
   return (
@@ -90,7 +90,7 @@ const Capture = () => {
               if (stream) {
                 stream.getTracks().forEach(track => track.stop());
               }
-              navigate("/");
+              navigate("/photo-upload");
             }}
             className="text-white hover:bg-white/20"
           >

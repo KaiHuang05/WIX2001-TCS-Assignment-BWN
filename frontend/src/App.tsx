@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Welcome from "./pages/Welcome";
 import About from "./pages/About";
+import PhotoUpload from "./pages/PhotoUpload";
 import Capture from "./pages/Capture";
+import GenreSelection from "./pages/GenreSelection";
 import VideoCapture from "./pages/VideoCapture";
 import AudioCapture from "./pages/AudioCapture";
 import Processing from "./pages/Processing";
@@ -23,7 +25,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/about" element={<About />} />
+          <Route path="/photo-upload" element={<PhotoUpload />} />
           <Route path="/capture" element={<Capture />} />
+          <Route path="/genre-selection" element={<GenreSelection />} />
           <Route path="/video-capture" element={<VideoCapture />} />
           <Route path="/audio-capture" element={<AudioCapture />} />
           <Route path="/processing" element={<Processing />} />
