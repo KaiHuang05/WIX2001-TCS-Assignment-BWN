@@ -19,6 +19,7 @@ const Result = () => {
   // --- LOGIC SECTION (UNTOUCHED) ---
   useEffect(() => {
     const type = sessionStorage.getItem("mementoType") as MementoType || "photo";
+    const videoMode = sessionStorage.getItem("videoMode");
     setMementoType(type);
 
     let data = "";
@@ -27,7 +28,12 @@ const Result = () => {
         data = sessionStorage.getItem("capturedImage") || "";
         break;
       case "video":
-        data = sessionStorage.getItem("capturedVideo") || "";
+        // Check if it's a generated montage or recorded video
+        if (videoMode === "montage") {
+          data = sessionStorage.getItem("generatedVideo") || "";
+        } else {
+          data = sessionStorage.getItem("capturedVideo") || "";
+        }
         break;
       case "audio":
         // For audio memento, use the generated audio instead of the original
@@ -64,7 +70,18 @@ const Result = () => {
     if (!capturedData) return;
     const link = document.createElement("a");
     link.href = capturedData;
-    const extension = mementoType === "photo" ? "png" : mementoType === "video" ? "webm" : mementoType === "audio" ? "wav" : "webm";
+    const videoMode = sessionStorage.getItem("videoMode");
+    
+    // Determine file extension based on type and mode
+    let extension = "png";
+    if (mementoType === "photo") {
+      extension = "png";
+    } else if (mementoType === "video") {
+      extension = videoMode === "montage" ? "mp4" : "webm";
+    } else if (mementoType === "audio") {
+      extension = "wav";
+    }
+    
     link.download = `smart-memento-${Date.now()}.${extension}`;
     document.body.appendChild(link);
     link.click();

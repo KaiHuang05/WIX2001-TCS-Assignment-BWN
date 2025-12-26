@@ -1,0 +1,3 @@
+"""
+AI Video Generation Module
+"""

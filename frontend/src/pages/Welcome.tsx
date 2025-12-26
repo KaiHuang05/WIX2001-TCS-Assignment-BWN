@@ -18,7 +18,7 @@ const Welcome = () => {
       // CHANGED: Points to your PNG file
       iconSrc: "/video.png",
       title: "Video Memento",
-      description: "Star in an AI short inspired by Malaysian folklore and cultural narratives",
+      description: "Create an AI-powered video montage from your photos with smart music selection",
       path: "/video-capture" 
     },
     {

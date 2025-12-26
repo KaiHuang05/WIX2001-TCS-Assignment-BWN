@@ -15,6 +15,8 @@ export const API_ENDPOINTS = {
   styleGuide: `${API_BASE_URL}/api/style-guide`,
   styleGuideBase64: `${API_BASE_URL}/api/style-guide-base64`,
   testStyleGuide: `${API_BASE_URL}/api/test-style-guide`, // Test endpoint - no credits used!
+  autoVlog: `${API_BASE_URL}/api/auto-vlog`,
+  autoVlogCategories: `${API_BASE_URL}/api/auto-vlog/music-categories`,
 };
 
 /**

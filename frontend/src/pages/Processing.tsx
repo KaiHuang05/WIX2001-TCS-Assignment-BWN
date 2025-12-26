@@ -218,21 +218,127 @@ const Processing = () => {
     }
   }, [navigate, toast]);
 
+  const processVideoMontage = useCallback(async () => {
+    try {
+      const montageImagesStr = sessionStorage.getItem("montageImages");
+      const musicCategory = sessionStorage.getItem("musicCategory") || "auto";
+
+      if (!montageImagesStr) {
+        throw new Error("Missing montage images");
+      }
+
+      const montageImages = JSON.parse(montageImagesStr);
+
+      if (!Array.isArray(montageImages) || montageImages.length === 0) {
+        throw new Error("Invalid montage images data");
+      }
+
+      setProcessingStatus(`Analyzing ${montageImages.length} image${montageImages.length > 1 ? 's' : ''}...`);
+
+      // Prepare request
+      const requestBody = {
+        images: montageImages,
+        music_category: musicCategory === "auto" ? null : musicCategory
+      };
+
+      setProcessingStatus(
+        musicCategory === "auto" 
+          ? "AI is selecting the perfect music for your photos..." 
+          : "Creating your video montage..."
+      );
+
+      // Send to backend with longer timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
+
+      try {
+        console.log("🎬 Generating auto vlog...");
+        const response = await fetch(API_ENDPOINTS.autoVlog, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Auto vlog generation error:", errorText);
+          throw new Error(`Video generation failed: ${errorText}`);
+        }
+
+        console.log("📥 Reading video blob...");
+        const videoBlob = await response.blob();
+        console.log("✅ Video blob received:", { size: videoBlob.size, type: videoBlob.type });
+        
+        // Convert blob to base64 for storage
+        const reader = new FileReader();
+        const videoDataUrl = await new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(videoBlob);
+        });
+        
+        // Store the generated video
+        sessionStorage.setItem("generatedVideo", videoDataUrl);
+        sessionStorage.removeItem("montageImages"); // Clean up
+        sessionStorage.removeItem("musicCategory");
+        
+        setProcessingStatus("✨ Video montage complete! Redirecting...");
+        
+        toast({
+          title: "Video Montage Created!",
+          description: "Your AI-powered video is ready to watch and download.",
+        });
+        
+        setTimeout(() => {
+          navigate("/result");
+        }, 1000);
+
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error("Video generation timeout - please try with fewer images.");
+        }
+        throw fetchError;
+      }
+
+    } catch (error) {
+      console.error("🔴 Video montage error:", error);
+      
+      toast({
+        variant: "destructive",
+        title: "Video Generation Error",
+        description: error instanceof Error ? error.message : "Failed to generate video montage. Please try again.",
+      });
+      
+      setTimeout(() => {
+        navigate("/video-capture");
+      }, 2000);
+    }
+  }, [navigate, toast]);
+
   useEffect(() => {
     const mementoType = sessionStorage.getItem("mementoType");
+    const videoMode = sessionStorage.getItem("videoMode");
     
     if (mementoType === "audio") {
       processAudioMemento();
     } else if (mementoType === "photo") {
       processPhotoMemento();
+    } else if (mementoType === "video" && videoMode === "montage") {
+      processVideoMontage();
     } else {
-      // Simulate AI processing time for other types
+      // Simulate AI processing time for other types (recorded video)
       const timer = setTimeout(() => {
         navigate("/result");
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [navigate, processAudioMemento, processPhotoMemento]);
+  }, [navigate, processAudioMemento, processPhotoMemento, processVideoMontage]);
   // --------------------------------
 
   return (
