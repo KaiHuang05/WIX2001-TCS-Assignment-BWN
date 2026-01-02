@@ -15,7 +15,10 @@ export const API_ENDPOINTS = {
   styleGuide: `${API_BASE_URL}/api/style-guide`,
   styleGuideBase64: `${API_BASE_URL}/api/style-guide-base64`,
   testStyleGuide: `${API_BASE_URL}/api/test-style-guide`, // Test endpoint - no credits used!
-  autoVlog: `${API_BASE_URL}/api/auto-vlog`,
+  autoVlog: `${API_BASE_URL}/api/auto-vlog/generate`, // Simple direct endpoint with Cloudinary
+  autoVlogAsync: `${API_BASE_URL}/api/auto-vlog`, // Async background worker endpoint
+  autoVlogStatus: (jobId: string) => `${API_BASE_URL}/api/auto-vlog/status/${jobId}`,
+  autoVlogResult: (jobId: string) => `${API_BASE_URL}/api/auto-vlog/result/${jobId}`,
   autoVlogCategories: `${API_BASE_URL}/api/auto-vlog/music-categories`,
 };
 

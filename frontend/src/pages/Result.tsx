@@ -30,7 +30,8 @@ const Result = () => {
       case "video":
         // Check if it's a generated montage or recorded video
         if (videoMode === "montage") {
-          data = sessionStorage.getItem("generatedVideo") || "";
+          // Check for Cloudinary URL first, fallback to base64
+          data = sessionStorage.getItem("generatedVideoUrl") || sessionStorage.getItem("generatedVideo") || "";
         } else {
           data = sessionStorage.getItem("capturedVideo") || "";
         }

@@ -270,20 +270,21 @@ const Processing = () => {
           throw new Error(`Video generation failed: ${errorText}`);
         }
 
-        console.log("📥 Reading video blob...");
-        const videoBlob = await response.blob();
-        console.log("✅ Video blob received:", { size: videoBlob.size, type: videoBlob.type });
+        console.log("📥 Reading response...");
+        const result = await response.json();
+        console.log("✅ Video generated:", result);
         
-        // Convert blob to base64 for storage
-        const reader = new FileReader();
-        const videoDataUrl = await new Promise<string>((resolve, reject) => {
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(videoBlob);
-        });
+        if (!result.success || !result.video_url) {
+          throw new Error("Video generation failed: No video URL returned");
+        }
         
-        // Store the generated video
-        sessionStorage.setItem("generatedVideo", videoDataUrl);
+        // Store the Cloudinary video URL
+        sessionStorage.setItem("generatedVideoUrl", result.video_url);
+        sessionStorage.setItem("videoMetadata", JSON.stringify({
+          duration: result.duration,
+          resolution: result.resolution,
+          cloudinary_public_id: result.cloudinary_public_id
+        }));
         sessionStorage.removeItem("montageImages"); // Clean up
         sessionStorage.removeItem("musicCategory");
         

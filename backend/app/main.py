@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import health, items, voice_clone, style_guide, test_style, auto_vlog
+from app.api.routes import health, items, voice_clone, style_guide, test_style, auto_vlog, auto_vlog_simple
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -32,6 +32,7 @@ app.include_router(voice_clone.router, prefix="/api", tags=["Voice Clone"])
 app.include_router(style_guide.router, prefix="/api", tags=["Style Guide"])
 app.include_router(test_style.router, prefix="/api", tags=["Testing"])
 app.include_router(auto_vlog.router, prefix="/api", tags=["Auto Vlog"])
+app.include_router(auto_vlog_simple.router, prefix="/api", tags=["Auto Vlog Simple"])
 
 
 @app.get("/")

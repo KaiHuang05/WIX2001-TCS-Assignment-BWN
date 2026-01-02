@@ -18,6 +18,14 @@ import google.generativeai as genai
 from PIL import Image
 from dotenv import load_dotenv
 
+# Try to import Cloudinary service (optional)
+try:
+    from app.services.cloudinary_service import CloudinaryService
+    CLOUDINARY_AVAILABLE = True
+except ImportError:
+    CLOUDINARY_AVAILABLE = False
+    print("⚠ Cloudinary service not available - videos will be stored locally only")
+
 # Config
 load_dotenv()
 
@@ -26,6 +34,7 @@ CLIPS_PER_IMAGE = 2   # Number of clips to create from each image (if only one i
 BASE_DURATION = 2.5   # seconds per clip
 VARIANCE = 1.0        # duration randomness
 TRANSITION = 0.5      # crossfade duration
+TARGET_RESOLUTION = (1920, 1080)  # Target resolution for final video (Full HD)
 
 # Gemini API Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
@@ -67,6 +76,48 @@ MUSIC_LIBRARY = {
 }
 
 DEFAULT_MUSIC_URLS = MUSIC_LIBRARY["upbeat"]
+
+
+def ensure_even_dimensions(width, height):
+    """Ensure both dimensions are divisible by 2 (required for H.264)"""
+    if width % 2 != 0:
+        width -= 1
+    if height % 2 != 0:
+        height -= 1
+    return (width, height)
+
+
+def resize_image_if_needed(image_path, max_width=1920, max_height=1080):
+    """
+    Ensures image dimensions are divisible by 2 for H.264 encoding.
+    Only adjusts by 1 pixel if needed - does NOT downscale.
+    Returns the path to adjusted image (or original if no adjustment needed).
+    """
+    try:
+        img = Image.open(image_path)
+        width, height = img.size
+        
+        # Check if dimensions are already even
+        if width % 2 == 0 and height % 2 == 0:
+            return image_path
+        
+        # Only adjust to make even (subtract 1 pixel if odd)
+        new_width = width if width % 2 == 0 else width - 1
+        new_height = height if height % 2 == 0 else height - 1
+        
+        # Resize to make dimensions even
+        img_resized = img.resize((new_width, new_height), Image.LANCZOS)
+        
+        # Save to temp location
+        temp_path = image_path.parent / f"temp_resized_{image_path.name}"
+        img_resized.save(temp_path, quality=95)
+        
+        print(f"  ✂ Adjusted {image_path.name}: {width}x{height} → {new_width}x{new_height} (even dimensions)")
+        
+        return temp_path
+    except Exception as e:
+        print(f"  ⚠ Could not adjust {image_path.name}: {e}")
+        return image_path
 
 
 # Motion & Effects
@@ -231,7 +282,7 @@ def download_free_music(music_urls, audio_path):
     return False
 
 
-def generate_vlog(input_dir: Path, output_dir: Path, music_category: str = None):
+def generate_vlog(input_dir: Path, output_dir: Path, music_category: str = None, upload_to_cloudinary: bool = True):
     """
     Generate auto vlog from images in input_dir
     
@@ -239,9 +290,10 @@ def generate_vlog(input_dir: Path, output_dir: Path, music_category: str = None)
         input_dir: Directory containing input images
         output_dir: Directory for output video
         music_category: Optional music category (auto-selects if None)
+        upload_to_cloudinary: Whether to upload video to Cloudinary (default: True)
     
     Returns:
-        Path to generated video file
+        dict with 'local_path' and optionally 'cloudinary_url' and 'cloudinary_public_id'
     """
     # Find all image files
     image_files = []
@@ -274,10 +326,33 @@ def generate_vlog(input_dir: Path, output_dir: Path, music_category: str = None)
     
     # Build clips
     clips = []
+    temp_files_to_cleanup = []
+    
     for img_file in image_files:
+        # Ensure image dimensions are even (required for H.264)
+        adjusted_img = resize_image_if_needed(img_file)
+        if adjusted_img != img_file:
+            temp_files_to_cleanup.append(adjusted_img)
+        
         for i in range(clips_per_image):
             duration = max(1.5, BASE_DURATION + random.uniform(-VARIANCE, VARIANCE))
-            clip = ImageClip(str(img_file)).set_duration(duration)
+            # Create clip with explicit duration and resize to target resolution
+            clip = ImageClip(str(adjusted_img), duration=duration)
+            
+            # Resize clip to target resolution maintaining aspect ratio
+            # Calculate dimensions that maintain aspect ratio and are even
+            img_width, img_height = clip.size
+            aspect_ratio = img_width / img_height
+            
+            # Fit to target height (1080p)
+            new_height = TARGET_RESOLUTION[1]
+            new_width = int(new_height * aspect_ratio)
+            
+            # Ensure dimensions are even
+            new_width, new_height = ensure_even_dimensions(new_width, new_height)
+            
+            # Resize to calculated dimensions
+            clip = clip.resize(newsize=(new_width, new_height))
             
             # Apply random effects
             motion = random.choice(MOTIONS)
@@ -285,6 +360,12 @@ def generate_vlog(input_dir: Path, output_dir: Path, music_category: str = None)
             
             color = random.choice(COLOR_EFFECTS)
             clip = color(clip)
+            
+            # CRITICAL: Ensure dimensions are still even after all transformations
+            # Motion effects can change dimensions, so we force them back to even
+            final_width, final_height = clip.size
+            final_width, final_height = ensure_even_dimensions(final_width, final_height)
+            clip = clip.resize(newsize=(final_width, final_height))
             
             fade_duration = random.uniform(0.2, 0.5)
             clip = clip.fx(vfx.fadein, fade_duration).fx(vfx.fadeout, fade_duration)
@@ -332,9 +413,43 @@ def generate_vlog(input_dir: Path, output_dir: Path, music_category: str = None)
         ffmpeg_params=["-pix_fmt", "yuv420p"]
     )
     
+    # Cleanup temporary resized files
+    for temp_file in temp_files_to_cleanup:
+        try:
+            temp_file.unlink()
+        except Exception as e:
+            print(f"⚠ Could not delete temp file {temp_file}: {e}")
+    
     print(f"\n✅ Auto vlog created: {output_path}")
     print(f"   Duration: {video.duration:.1f}s")
     print(f"   Clips: {len(clips)}")
     print(f"   Resolution: {video.size}")
     
-    return str(output_path)
+    result = {
+        "local_path": str(output_path),
+        "duration": video.duration,
+        "resolution": video.size,
+        "clips_count": len(clips)
+    }
+    
+    # Upload to Cloudinary if enabled and available
+    if upload_to_cloudinary and CLOUDINARY_AVAILABLE:
+        print("\n📤 Uploading to Cloudinary...")
+        try:
+            upload_result = CloudinaryService.upload_video(
+                video_path=str(output_path),
+                folder="auto_vlogs"
+            )
+            
+            if upload_result.get("success"):
+                result["cloudinary_url"] = upload_result["url"]
+                result["cloudinary_public_id"] = upload_result["public_id"]
+                print(f"✅ Uploaded to Cloudinary: {upload_result['url']}")
+            else:
+                print(f"⚠ Cloudinary upload failed: {upload_result.get('error')}")
+                result["cloudinary_error"] = upload_result.get("error")
+        except Exception as e:
+            print(f"⚠ Cloudinary upload error: {e}")
+            result["cloudinary_error"] = str(e)
+    
+    return result
